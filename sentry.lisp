@@ -20,12 +20,14 @@
 (defparameter *lack-middleware-sentry*
   (lambda (app)
     (lambda (env)
-      (handler-case (funcall app env)
-        (error (err)
-          (let* ((headers (getf env :headers))
-                 (extras (append (prepare-env env) (prepare-headers headers))))
-            (sentry-client:capture-exception err :extras extras)
-            (error err)))))))
+      (handler-bind ((error (err)
+                            (let* ((headers (getf env :headers))
+                                   (extras (append (prepare-env env)
+                                                   (prepare-headers headers))))
+                              (ignore-errors
+                               (sentry-client:capture-exception err
+                                                                :extras extras)))))
+        (funcall app env)))))
 
 
 (defun prepare-env (env)
