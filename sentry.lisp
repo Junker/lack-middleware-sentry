@@ -40,6 +40,6 @@
 (defun prepare-headers (headers)
   (loop :for val :being :each :hash-values :of headers :using (hash-key name)
         :collect (cons (uiop:strcat "|HEADER: " name)
-                       (if (member name *sensitive-headers* :test #'string=)
+                       (if (member name *sensitive-headers* :test #'string-equal)
                            "[Filtered]"
                            val))))
